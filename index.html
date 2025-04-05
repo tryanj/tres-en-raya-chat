@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>3 en Raya Pirata</title>
+  <style>
+    body {
+      font-family: 'Treasure Map Deadhand', cursive;
+      text-align: center;
+      background-image: url('https://i.imgur.com/YZdFCR8.jpg');
+      background-size: cover;
+      color: #fff;
+    }
+    h1 {
+      margin-top: 30px;
+      font-size: 48px;
+      text-shadow: 2px 2px #000;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      margin: 40px auto;
+      width: max-content;
+    }
+    .cell {
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 3px solid #8b4513;
+      font-size: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      background-image: url('https://i.imgur.com/mrcHqY8.png');
+      background-size: cover;
+    }
+    .cell.X {
+      background-image: url('https://i.imgur.com/B6jCCAd.png'); /* Calavera */
+    }
+    .cell.O {
+      background-image: url('https://i.imgur.com/tblLJhM.png'); /* Timón */
+    }
+    .status {
+      font-size: 24px;
+      margin-top: 10px;
+      text-shadow: 1px 1px #000;
+    }
+    .reset {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #d2691e;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .reset:hover {
+      background-color: #a0522d;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1>3 en Raya Pirata</h1>
+  <div class="board" id="board"></div>
+  <div class="status" id="status">Turno de: Calavera</div>
+  <button class="reset" onclick="resetGame()">Reiniciar</button>
+
+  <script>
+    const board = document.getElementById('board');
+    const status = document.getElementById('status');
+    let cells = [];
+    let turn = 'X';
+    let gameOver = false;
+
+    function createBoard() {
+      board.innerHTML = '';
+      cells = [];
+      gameOver = false;
+      status.textContent = 'Turno de: ' + (turn === 'X' ? 'Calavera' : 'Timón');
+
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        cell.addEventListener('click', handleClick);
+        board.appendChild(cell);
+        cells.push(cell);
+      }
+    }
+
+    function handleClick(e) {
+      const cell = e.target;
+      const index = cell.dataset.index;
+
+      if (cell.classList.contains('X') || cell.classList.contains('O') || gameOver) return;
+
+      cell.classList.add(turn);
+      cell.textContent = turn; // Mostrar X o O por respaldo visual
+
+      if (checkWinner()) {
+        status.textContent = '¡Ganador: ' + (turn === 'X' ? 'Calavera' : 'Timón') + '!';
+        gameOver = true;
+      } else if (cells.every(c => c.classList.contains('X') || c.classList.contains('O'))) {
+        status.textContent = '¡Empate entre piratas!';
+        gameOver = true;
+      } else {
+        turn = turn === 'X' ? 'O' : 'X';
+        status.textContent = 'Turno de: ' + (turn === 'X' ? 'Calavera' : 'Timón');
+      }
+    }
+
+    function checkWinner() {
+      const combos = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      return combos.some(([a,b,c]) => {
+        return cells[a].classList.length > 1 &&
+               cells[a].classList.contains(cells[b].classList[1]) &&
+               cells[a].classList.contains(cells[c].classList[1]);
+      });
+    }
+
+    function resetGame() {
+      turn = 'X';
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
